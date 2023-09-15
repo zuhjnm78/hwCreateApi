@@ -48,9 +48,13 @@ public class StudentController {
     }
     @GetMapping("filterByAge")
     public ResponseEntity<Collection<Student>> filterStudentsByAge(@RequestParam int age) {
-        Collection<Student> filteredStudents = studentService.getAllStudents().stream()
-                .filter(student -> student.getAge() == age)
-                .collect(Collectors.toList());
+        studentService.filterStudentsByAge(age);
+        return ResponseEntity.ok().build();
+    }
+    @GetMapping("filterByAgeRange")
+    public ResponseEntity<Collection<Student>> filterStudentsByAgeRange(@RequestParam int min,
+                                                                        @RequestParam int max) {
+        Collection<Student> filteredStudents = studentService.findStudentsByAgeRange(min, max);
         return ResponseEntity.ok(filteredStudents);
     }
 }

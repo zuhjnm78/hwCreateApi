@@ -4,11 +4,9 @@ import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 import ru.hogwarts.school.model.Faculty;
-import ru.hogwarts.school.model.Student;
 import ru.hogwarts.school.service.FacultyService;
 
 import java.util.Collection;
-import java.util.stream.Collectors;
 
 @RestController
 @RequestMapping("faculties")
@@ -50,9 +48,13 @@ public class FacultyController {
     }
     @GetMapping("filterByColor")
     public ResponseEntity<Collection<Faculty>> filterFacultiesByColor(@RequestParam String color) {
-        Collection<Faculty> filteredFaculties = facultyService.getAllFaculties().stream()
-                .filter(faculty -> faculty.getColor().equals(color))
-                .collect(Collectors.toList());
+        facultyService.findFacultiesByColorIgnoreCase(color);
+        return ResponseEntity.ok().build();
+    }
+    @GetMapping("filterByNameOrColor")
+    public ResponseEntity<Collection<Faculty>> filterFacultiesByNameOrColor(@RequestParam String query) {
+        Collection<Faculty> filteredFaculties = facultyService.findFacultiesByNameIgnoreCase(query);
+        filteredFaculties.addAll(facultyService.findFacultiesByColorIgnoreCase(query));
         return ResponseEntity.ok(filteredFaculties);
     }
 }
