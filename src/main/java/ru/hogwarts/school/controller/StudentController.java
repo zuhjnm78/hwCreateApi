@@ -3,6 +3,7 @@ package ru.hogwarts.school.controller;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
+import ru.hogwarts.school.model.Faculty;
 import ru.hogwarts.school.model.Student;
 import ru.hogwarts.school.service.StudentService;
 
@@ -15,7 +16,16 @@ public class StudentController {
     private final StudentService studentService;
 
     public StudentController(StudentService studentService) {
+
         this.studentService = studentService;
+    }
+    @GetMapping("{id}/faculty")
+    public ResponseEntity<Faculty> getStudentFaculty(@PathVariable Long id) {
+        Faculty faculty = studentService.getStudentFaculty(id);
+        if (faculty == null) {
+            return ResponseEntity.notFound().build();
+        }
+        return ResponseEntity.ok(faculty);
     }
     @GetMapping("{id}")
     public ResponseEntity<Student> getStudentInfo(@PathVariable Long id) {
@@ -43,14 +53,20 @@ public class StudentController {
     }
     @DeleteMapping("{id}")
     public ResponseEntity deleteStudent(@PathVariable Long id) {
-        studentService.deleteStudent(id);
-        return ResponseEntity.ok().build();
+        Student deletedStudent = studentService.deleteStudent(id);
+
+        if (deletedStudent != null) {
+            return ResponseEntity.ok().build();
+        } else {
+            return ResponseEntity.notFound().build();
+        }
     }
     @GetMapping("filterByAge")
     public ResponseEntity<Collection<Student>> filterStudentsByAge(@RequestParam int age) {
-        studentService.filterStudentsByAge(age);
-        return ResponseEntity.ok().build();
+        Collection<Student> filteredStudents = studentService.filterStudentsByAge(age);
+        return ResponseEntity.ok(filteredStudents);
     }
+
     @GetMapping("filterByAgeRange")
     public ResponseEntity<Collection<Student>> filterStudentsByAgeRange(@RequestParam int min,
                                                                         @RequestParam int max) {

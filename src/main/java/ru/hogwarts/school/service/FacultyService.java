@@ -2,6 +2,7 @@ package ru.hogwarts.school.service;
 
 import org.springframework.stereotype.Service;
 import ru.hogwarts.school.model.Faculty;
+import ru.hogwarts.school.model.Student;
 import ru.hogwarts.school.repositories.FacultyRepository;
 
 import java.util.Collection;
@@ -13,7 +14,13 @@ public class FacultyService {
     public FacultyService(FacultyRepository facultyRepository) {
         this.facultyRepository = facultyRepository;
     }
-
+    public Collection<Student> getFacultyStudents(long facultyId) {
+        Faculty faculty = facultyRepository.findById(facultyId).orElse(null);
+        if (faculty != null) {
+            return faculty.getStudents();
+        }
+        return null;
+    }
     public Faculty createFaculty(Faculty faculty) {
 
         return facultyRepository.save(faculty);
@@ -24,9 +31,20 @@ public class FacultyService {
         return facultyRepository.findById(id).get();
     }
 
-    public Faculty editFaculty(Faculty faculty) {
+    public Faculty editFaculty(Faculty updatedFaculty) {
 
-        return facultyRepository.save(faculty);
+        Faculty existingFaculty = facultyRepository.findById(updatedFaculty.getId()).orElse(null);
+
+        if (existingFaculty != null) {
+
+            existingFaculty.setName(updatedFaculty.getName());
+            existingFaculty.setColor(updatedFaculty.getColor());
+
+            return facultyRepository.save(existingFaculty);
+        } else {
+
+            return null;
+        }
     }
 
     public void deleteFaculty(long id) {
@@ -38,10 +56,7 @@ public class FacultyService {
 
         return facultyRepository.findAll();
     }
-    public Collection<Faculty> findFacultiesByColorIgnoreCase(String color) {
-        return facultyRepository.findFacultiesByColorIgnoreCase(color);
-    }
-    public Collection<Faculty> findFacultiesByNameIgnoreCase(String name) {
-        return facultyRepository.findFacultiesByNameIgnoreCase(name);
+    public Collection<Faculty> findFacultiesByNameOrColorIgnoreCase(String query) {
+        return facultyRepository.findFacultiesByNameIgnoreCaseOrColorIgnoreCase(query, query);
     }
 }

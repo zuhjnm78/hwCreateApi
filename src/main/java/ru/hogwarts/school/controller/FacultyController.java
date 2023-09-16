@@ -4,6 +4,7 @@ import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 import ru.hogwarts.school.model.Faculty;
+import ru.hogwarts.school.model.Student;
 import ru.hogwarts.school.service.FacultyService;
 
 import java.util.Collection;
@@ -15,7 +16,16 @@ public class FacultyController {
     private final FacultyService facultyService;
 
     public FacultyController(FacultyService facultyService) {
+
         this.facultyService = facultyService;
+    }
+    @GetMapping("{id}/students")
+    public ResponseEntity<Collection<Student>> getFacultyStudents(@PathVariable Long id) {
+        Collection<Student> students = facultyService.getFacultyStudents(id);
+        if (students == null) {
+            return ResponseEntity.notFound().build();
+        }
+        return ResponseEntity.ok(students);
     }
     @GetMapping("{id}")
     public ResponseEntity<Faculty> getFacultyInfo(@PathVariable Long id) {
@@ -46,15 +56,9 @@ public class FacultyController {
         facultyService.deleteFaculty(id);
         return ResponseEntity.ok().build();
     }
-    @GetMapping("filterByColor")
-    public ResponseEntity<Collection<Faculty>> filterFacultiesByColor(@RequestParam String color) {
-        facultyService.findFacultiesByColorIgnoreCase(color);
-        return ResponseEntity.ok().build();
-    }
     @GetMapping("filterByNameOrColor")
     public ResponseEntity<Collection<Faculty>> filterFacultiesByNameOrColor(@RequestParam String query) {
-        Collection<Faculty> filteredFaculties = facultyService.findFacultiesByNameIgnoreCase(query);
-        filteredFaculties.addAll(facultyService.findFacultiesByColorIgnoreCase(query));
+        Collection<Faculty> filteredFaculties = facultyService.findFacultiesByNameOrColorIgnoreCase(query);
         return ResponseEntity.ok(filteredFaculties);
     }
 }
