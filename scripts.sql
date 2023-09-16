@@ -4,6 +4,6 @@ SELECT name FROM student;
 select * from student
 WHERE name LIKE '%Г%';
 SELECT * FROM student
-WHERE age < 18;
+WHERE age < student.id;
 SELECT * FROM student
 ORDER BY age;
