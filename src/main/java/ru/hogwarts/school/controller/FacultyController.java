@@ -41,6 +41,8 @@ public class FacultyController {
     }
     @PostMapping
     public Faculty createFaculty(@RequestBody Faculty faculty) {
+
+
         return facultyService.createFaculty(faculty);
     }
     @PutMapping
@@ -53,9 +55,14 @@ public class FacultyController {
     }
     @DeleteMapping("{id}")
     public ResponseEntity deleteFaculty(@PathVariable Long id) {
-        facultyService.deleteFaculty(id);
-        return ResponseEntity.ok().build();
+        Faculty deletedFaculty = facultyService.deleteFaculty(id);
+        if (deletedFaculty != null) {
+            return ResponseEntity.ok().build();
+        } else {
+            return ResponseEntity.notFound().build();
+        }
     }
+
     @GetMapping("filterByNameOrColor")
     public ResponseEntity<Collection<Faculty>> filterFacultiesByNameOrColor(@RequestParam String query) {
         Collection<Faculty> filteredFaculties = facultyService.findFacultiesByNameOrColorIgnoreCase(query);
