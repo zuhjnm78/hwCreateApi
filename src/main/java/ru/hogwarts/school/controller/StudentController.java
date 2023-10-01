@@ -1,76 +1,42 @@
 package ru.hogwarts.school.controller;
 
-import org.springframework.http.HttpHeaders;
-import org.springframework.http.HttpStatus;
-import org.springframework.http.MediaType;
+import io.swagger.v3.oas.annotations.Operation;
+import io.swagger.v3.oas.annotations.tags.Tag;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
-import org.springframework.web.multipart.MultipartFile;
 import ru.hogwarts.school.model.Faculty;
 import ru.hogwarts.school.model.Student;
-import ru.hogwarts.school.model.StudentAvatar;
-import ru.hogwarts.school.service.StudentAvatarService;
 import ru.hogwarts.school.service.StudentService;
-
-import javax.servlet.http.HttpServletResponse;
-import java.io.IOException;
-import java.io.InputStream;
-import java.io.OutputStream;
-import java.nio.file.Files;
-import java.nio.file.Path;
 import java.util.Collection;
 
 @RestController
 @RequestMapping("students")
+@Tag(name = "API для работы со студентами")
 public class StudentController {
     private final StudentService studentService;
-    private final StudentAvatarService studentAvatarService;
 
-    public StudentController(StudentService studentService, StudentAvatarService studentAvatarService) {
+    public StudentController(StudentService studentService) {
         this.studentService = studentService;
-        this.studentAvatarService = studentAvatarService;
-    }
-
-
-    @GetMapping("{id}/faculty")
-    public ResponseEntity<Faculty> getStudentFaculty(@PathVariable Long id) {
-        Faculty faculty = studentService.getStudentFaculty(id);
-        if (faculty == null) {
-            return ResponseEntity.notFound().build();
-        }
-        return ResponseEntity.ok(faculty);
-    }
-
-    @GetMapping("{id}")
-    public ResponseEntity<Student> getStudentInfo(@PathVariable Long id) {
-        Student student = studentService.findStudent(id);
-        if (student == null) {
-            return ResponseEntity.notFound().build();
-        }
-        return ResponseEntity.ok(student);
-    }
-
-    @GetMapping
-    public ResponseEntity<Collection<Student>> getAllStudents() {
-        return ResponseEntity.ok(studentService.getAllStudents());
     }
 
     @PostMapping
-    public Student createStudent(@RequestBody Student student) {
-
-        return studentService.createStudent(student);
+    @Operation (summary = "Создание студента")
+    public Student create(@RequestBody Student studentRs) {
+        return studentService.createStudent(studentRs);
     }
 
     @PutMapping
-    public ResponseEntity<Student> editStudent(@RequestBody Student student) {
-        Student foundStudent = studentService.editStudent(student);
-        if (foundStudent == null) {
-            return ResponseEntity.status(HttpStatus.NOT_FOUND).build();
+    @Operation (summary = "Изменение студента")
+    public ResponseEntity<Student> updateStudent(@RequestBody Student student) {
+        Student updatedStudent = studentService.updateStudent(student);
+        if (updatedStudent == null) {
+            return ResponseEntity.notFound().build();
         }
-        return ResponseEntity.ok(foundStudent);
+        return ResponseEntity.ok(updatedStudent);
     }
 
     @DeleteMapping("{id}")
+    @Operation (summary = "Удаление студента")
     public ResponseEntity deleteStudent(@PathVariable Long id) {
         Student deletedStudent = studentService.deleteStudent(id);
 
@@ -81,47 +47,38 @@ public class StudentController {
         }
     }
 
-    @PostMapping(value = "/{studentId}/avatar" , consumes = MediaType.MULTIPART_FORM_DATA_VALUE)
-    public ResponseEntity<String> uploadCover(@PathVariable Long studentId, @RequestParam MultipartFile avatar) throws IOException {
-            if(avatar.getSize()>=1024*300) {
-        return ResponseEntity.badRequest().body("file is too big");
+
+    @GetMapping("/{id}")
+    @Operation(summary = "Получение студента по ID")
+    public ResponseEntity<Student> getStudentById(@PathVariable Long id) {
+        Student student = studentService.getStudentById(id);
+
+        if (student != null) {
+            return ResponseEntity.ok(student);
+        } else {
+
+            return ResponseEntity.notFound().build();
+        }
     }
-            studentAvatarService.uploadStudentAvatar(studentId, avatar);
-            return ResponseEntity.ok().build();
+
+    @GetMapping("all")
+    @Operation(summary = "Получение всех студентов")
+    public ResponseEntity<Collection<Student>> getAllStudents() {
+        return ResponseEntity.ok(studentService.getAllStudents());
+    }
+
+    @GetMapping("age")
+    @Operation(summary = "Получение студентов по возрасту")
+    public ResponseEntity<Collection<Student>> getByAgeBetween(@RequestParam Integer min, @RequestParam Integer max) {
+        Collection<Student> filteredStudents = studentService.findByAgeBetween(min, max);
+        return ResponseEntity.ok(filteredStudents);
+    }
+
+    @GetMapping("faculty/{studentId}")
+    @Operation (summary = "Полученіе факультета студента")
+    public ResponseEntity<Faculty> getStudentFaculty(@PathVariable Long studentId) {
+        Faculty faculty = studentService.getStudentById(studentId).getFaculty();
+        return ResponseEntity.ok(faculty);
+    }
 }
-
-    @GetMapping(value = "/{id}/avatar/preview")
-    public ResponseEntity<byte[]> downloadCover(@PathVariable Long id) {
-        StudentAvatar studentAvatar = studentAvatarService.findStudentAvatar(id);
-        HttpHeaders headers = new HttpHeaders();
-        headers.setContentType(MediaType.parseMediaType(studentAvatar.getMediaType()));
-        headers.setContentLength(studentAvatar.getPreview().length);
-
-        return ResponseEntity.status(HttpStatus.OK).headers(headers).body(studentAvatar.getPreview());
-    }
-    @GetMapping (value = "/{id}/avatar")
-    public void downloadCover (@PathVariable Long id, HttpServletResponse response) throws IOException {
-        StudentAvatar studentAvatar = studentAvatarService.findStudentAvatar(id);
-        Path path = Path.of(studentAvatar.getFilePath());
-        try (InputStream is = Files.newInputStream(path);
-             OutputStream os = response.getOutputStream();) {
-            response.setContentType(studentAvatar.getMediaType());
-            response.setContentLength((int) studentAvatar.getFileSize());
-            is.transferTo(os);
-        }
-    }
-
-        @GetMapping("filterByAge")
-        public ResponseEntity<Collection<Student>> filterStudentsByAge ( @RequestParam int age){
-            Collection<Student> filteredStudents = studentService.filterStudentsByAge(age);
-            return ResponseEntity.ok(filteredStudents);
-        }
-
-        @GetMapping("filterByAgeRange")
-        public ResponseEntity<Collection<Student>> filterStudentsByAgeRange (
-                @RequestParam int min, @RequestParam int max){
-            Collection<Student> filteredStudents = studentService.findStudentsByAgeRange(min, max);
-            return ResponseEntity.ok(filteredStudents);
-        }
-    }
 

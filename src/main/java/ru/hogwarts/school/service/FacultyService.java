@@ -1,10 +1,13 @@
 package ru.hogwarts.school.service;
 
 import org.springframework.stereotype.Service;
+import org.springframework.util.StringUtils;
+import ru.hogwarts.school.exception.IncorrectArgumentException;
 import ru.hogwarts.school.model.Faculty;
 import ru.hogwarts.school.model.Student;
 import ru.hogwarts.school.repositories.FacultyRepository;
 
+import javax.persistence.EntityNotFoundException;
 import java.util.Collection;
 import java.util.Optional;
 
@@ -13,6 +16,7 @@ public class FacultyService {
     private final FacultyRepository facultyRepository;
 
     public FacultyService(FacultyRepository facultyRepository) {
+
         this.facultyRepository = facultyRepository;
     }
 
@@ -25,39 +29,21 @@ public class FacultyService {
     }
 
     public Faculty createFaculty(Faculty faculty) {
-
         return facultyRepository.save(faculty);
     }
 
-    public Faculty findFaculty(long id) {
-        Optional<Faculty> facultyOptional = facultyRepository.findById(id);
-        return facultyOptional.orElse(null);
+    public Faculty editFaculty(Faculty faculty) {
+            return facultyRepository.save(faculty);
     }
-
-    public Faculty editFaculty(Faculty updatedFaculty) {
-
-        Faculty existingFaculty = facultyRepository.findById(updatedFaculty.getId()).orElse(null);
-
-        if (existingFaculty != null) {
-
-            existingFaculty.setName(updatedFaculty.getName());
-            existingFaculty.setColor(updatedFaculty.getColor());
-
-            return facultyRepository.save(existingFaculty);
-        } else {
-
-            return null;
-        }
-    }
-
     public Faculty deleteFaculty(long id) {
-        Optional<Faculty> facultyOptional = facultyRepository.findById(id);
-        if (facultyOptional.isPresent()) {
+        Faculty faculty = get(id);
             facultyRepository.deleteById(id);
-            return facultyOptional.get();
-        } else {
-            return null;
-        }
+            return faculty;
+    }
+
+    public Faculty get(Long id) {
+        Optional<Faculty> faculty = facultyRepository.findById(id);
+       return faculty.orElse(null);
     }
 
     public Collection<Faculty> getAllFaculties() {
@@ -65,7 +51,10 @@ public class FacultyService {
         return facultyRepository.findAll();
     }
 
-    public Collection<Faculty> findFacultiesByNameOrColorIgnoreCase(String query) {
-        return facultyRepository.findFacultiesByNameIgnoreCaseOrColorIgnoreCase(query, query);
+    public Collection<Faculty> findByNameOrColor(String name, String color) throws IncorrectArgumentException {
+        if (!StringUtils.hasText(color) && !StringUtils.hasText(name)) {
+            throw new IncorrectArgumentException("Требуется указать цвет или наименование факультета");
+        }
+        return facultyRepository.findByNameIgnoreCaseOrColorIgnoreCase(name, color);
     }
 }

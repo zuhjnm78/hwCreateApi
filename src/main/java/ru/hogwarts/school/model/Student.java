@@ -1,58 +1,64 @@
 package ru.hogwarts.school.model;
 
+import com.fasterxml.jackson.annotation.JsonBackReference;
+
 import javax.persistence.*;
 import java.util.Objects;
-@Entity
+@Entity(name = "students")
 public class Student {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
-    private long id;
+    private Long id;
     private String name;
-    private int age;
+    private Integer age;
+    public Student() {
+
+    }
+
     @ManyToOne
     @JoinColumn(name = "faculty_id")
+    @JsonBackReference
     private Faculty faculty;
 
-    public Student(long id, String name, int age) {
+    public Student(Long id, String name, Integer age) {
         this.id = id;
         this.name = name;
         this.age = age;
     }
 
-    public Student() {
+    public Long getId() {
 
-    }
-
-    public long getId() {
         return id;
     }
 
     public String getName() {
+
         return name;
     }
 
-    public int getAge() {
+    public Integer getAge() {
         return age;
     }
 
-    public void setId(long id) {
+    public void setId(Long id) {
         this.id = id;
     }
 
+
     public void setName(String name) {
+
         this.name = name;
     }
 
-    public void setAge(int age) {
+    public void setAge(Integer age) {
         this.age = age;
     }
 
     @Override
     public boolean equals(Object o) {
         if (this == o) return true;
-        if (!(o instanceof Student)) return false;
-        Student student = (Student) o;
-        return id == student.id && age == student.age && Objects.equals(name, student.name);
+        if (!(o instanceof Student student)) return false;
+        return Objects.equals(id, student.id) && Objects.equals(name, student.name) && Objects.equals(age, student.age);
     }
 
     @Override

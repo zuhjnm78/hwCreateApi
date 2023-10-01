@@ -2,6 +2,7 @@ package ru.hogwarts.school.model;
 
 import javax.persistence.*;
 import java.util.Arrays;
+import java.util.Objects;
 
 @Entity
 public class StudentAvatar {
@@ -15,6 +16,19 @@ public class StudentAvatar {
     private byte [] preview;
     @OneToOne
     private Student student;
+    public StudentAvatar() {
+
+    }
+
+
+    public StudentAvatar(long id, String filePath, long fileSize, String mediaType, byte[] preview, Student student) {
+        this.id = id;
+        this.filePath = filePath;
+        this.fileSize = fileSize;
+        this.mediaType = mediaType;
+        this.preview = preview;
+        this.student = student;
+    }
 
     public long getId() {
         return id;
@@ -62,6 +76,20 @@ public class StudentAvatar {
 
     public void setFilePath(String filePath) {
         this.filePath = filePath;
+    }
+
+    @Override
+    public boolean equals(Object o) {
+        if (this == o) return true;
+        if (!(o instanceof StudentAvatar that)) return false;
+        return id == that.id && fileSize == that.fileSize && Objects.equals(filePath, that.filePath) && Objects.equals(mediaType, that.mediaType) && Arrays.equals(preview, that.preview) && Objects.equals(student, that.student);
+    }
+
+    @Override
+    public int hashCode() {
+        int result = Objects.hash(id, filePath, fileSize, mediaType, student);
+        result = 31 * result + Arrays.hashCode(preview);
+        return result;
     }
 
     @Override

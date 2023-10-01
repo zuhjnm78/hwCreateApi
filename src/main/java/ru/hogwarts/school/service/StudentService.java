@@ -5,6 +5,7 @@ import ru.hogwarts.school.model.Faculty;
 import ru.hogwarts.school.model.Student;
 import ru.hogwarts.school.repositories.StudentRepository;
 
+import javax.persistence.EntityNotFoundException;
 import java.util.Collection;
 import java.util.Optional;
 
@@ -13,6 +14,7 @@ public class StudentService {
     private final StudentRepository studentRepository;
 
     public StudentService(StudentRepository studentRepository) {
+
         this.studentRepository = studentRepository;
     }
     public Faculty getStudentFaculty(long studentId) {
@@ -24,8 +26,14 @@ public class StudentService {
     }
 
     public Student createStudent(Student student) {
+        Student createdStudent = studentRepository.save(student);
+        if (createdStudent == null) {
 
-        return studentRepository.save(student);
+            System.out.println("Error: createdStudent is null");
+        } else {
+            System.out.println("Created student: " + createdStudent);
+        }
+        return createdStudent;
     }
 
     public Student findStudent(long id) {
@@ -33,20 +41,8 @@ Optional<Student> studentOptional = studentRepository.findById(id);
         return studentOptional.orElse(null);
     }
 
-    public Student editStudent(Student updatedStudent) {
-
-        Student existingStudent = studentRepository.findById(updatedStudent.getId()).orElse(null);
-
-        if (existingStudent != null) {
-
-            existingStudent.setName(updatedStudent.getName());
-            existingStudent.setAge(updatedStudent.getAge());
-
-            return studentRepository.save(existingStudent);
-        } else {
-
-            return null;
-        }
+    public Student updateStudent(Student student) {
+        return studentRepository.save(student);
     }
 
     public Student deleteStudent(long id) {
@@ -58,16 +54,17 @@ Optional<Student> studentOptional = studentRepository.findById(id);
             return null;
         }
     }
+    public Student getStudentById(Long id) {
+        Optional<Student> optionalStudent = studentRepository.findById(id);
+        return optionalStudent.orElse(null);
+    }
 
     public Collection<Student> getAllStudents() {
 
         return studentRepository.findAll();
     }
 
-    public Collection<Student> filterStudentsByAge(int age) {
-        return studentRepository.findByAge(age);
-    }
-    public Collection<Student> findStudentsByAgeRange(int min,int max) {
+    public Collection<Student> findByAgeBetween(Integer min, Integer max) {
 
         return studentRepository.findByAgeBetween(min,max);
     }
