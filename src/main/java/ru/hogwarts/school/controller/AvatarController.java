@@ -1,5 +1,7 @@
 package ru.hogwarts.school.controller;
 
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.Pageable;
 import org.springframework.http.HttpHeaders;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.MediaType;
@@ -7,6 +9,7 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.web.multipart.MultipartFile;
 import ru.hogwarts.school.model.StudentAvatar;
+import ru.hogwarts.school.repositories.StudentAvatarRepository;
 import ru.hogwarts.school.service.StudentAvatarService;
 
 import javax.servlet.http.HttpServletResponse;
@@ -19,9 +22,11 @@ import java.nio.file.Path;
 @RequestMapping("students")
 public class AvatarController {
     private final StudentAvatarService studentAvatarService;
+    private final StudentAvatarRepository studentAvatarRepository;
 
-    public AvatarController(StudentAvatarService studentAvatarService) {
+    public AvatarController(StudentAvatarService studentAvatarService, StudentAvatarRepository studentAvatarRepository) {
         this.studentAvatarService = studentAvatarService;
+        this.studentAvatarRepository = studentAvatarRepository;
     }
 
     @PostMapping(value = "/{studentId}/avatar", consumes = MediaType.MULTIPART_FORM_DATA_VALUE)
@@ -53,5 +58,11 @@ public class AvatarController {
             response.setContentLength((int) studentAvatar.getFileSize());
             is.transferTo(os);
         }
+    }
+    @GetMapping("/student/{studentId}")
+    public ResponseEntity<Page<StudentAvatar>> getStudentAvatarsWithPagination(
+            @PathVariable Long studentId, Pageable pageable) {
+        Page<StudentAvatar> avatars = studentAvatarRepository.findByStudentId(studentId, pageable);
+        return ResponseEntity.ok(avatars);
     }
 }
