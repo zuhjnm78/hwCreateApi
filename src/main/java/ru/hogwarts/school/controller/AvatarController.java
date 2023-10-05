@@ -1,6 +1,7 @@
 package ru.hogwarts.school.controller;
 
 import org.springframework.data.domain.Page;
+import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Pageable;
 import org.springframework.http.HttpHeaders;
 import org.springframework.http.HttpStatus;
@@ -18,6 +19,8 @@ import java.io.InputStream;
 import java.io.OutputStream;
 import java.nio.file.Files;
 import java.nio.file.Path;
+import java.util.List;
+
 @RestController
 @RequestMapping("students")
 public class AvatarController {
@@ -59,10 +62,16 @@ public class AvatarController {
             is.transferTo(os);
         }
     }
-    @GetMapping("/student/{studentId}")
-    public ResponseEntity<Page<StudentAvatar>> getStudentAvatarsWithPagination(
-            @PathVariable Long studentId, Pageable pageable) {
-        Page<StudentAvatar> avatars = studentAvatarRepository.findByStudentId(studentId, pageable);
-        return ResponseEntity.ok(avatars);
+    @GetMapping
+    public ResponseEntity<List<StudentAvatar>> getAllAvatars(
+            @RequestParam("page") Integer pageNumber,
+            @RequestParam("size") Integer pageSize) {
+        List<StudentAvatar> avatarPage = studentAvatarService.getAllAvatars(pageNumber,pageSize);
+
+        if (avatarPage.isEmpty()) {
+            return ResponseEntity.noContent().build();
+        } else {
+            return ResponseEntity.ok(avatarPage);
+        }
     }
 }
