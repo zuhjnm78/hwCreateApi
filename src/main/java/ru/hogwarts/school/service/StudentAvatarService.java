@@ -22,7 +22,7 @@ import static java.nio.file.StandardOpenOption.CREATE_NEW;
 @Service
 @Transactional
 public class StudentAvatarService {
-    @Value("avatars")
+    @Value("avatar")
     private String avatarsDir;
 
     private final StudentRepository studentRepository;

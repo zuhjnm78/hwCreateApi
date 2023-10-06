@@ -12,7 +12,7 @@ import java.util.Collection;
 import java.util.List;
 
 @RestController
-@RequestMapping("students")
+@RequestMapping("student")
 @Tag(name = "API для работы со студентами")
 public class StudentController {
     private final StudentService studentService;

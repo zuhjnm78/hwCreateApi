@@ -1,8 +1,4 @@
 package ru.hogwarts.school.controller;
-
-import org.springframework.data.domain.Page;
-import org.springframework.data.domain.PageRequest;
-import org.springframework.data.domain.Pageable;
 import org.springframework.http.HttpHeaders;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.MediaType;
@@ -22,7 +18,7 @@ import java.nio.file.Path;
 import java.util.List;
 
 @RestController
-@RequestMapping("students")
+@RequestMapping("student")
 public class AvatarController {
     private final StudentAvatarService studentAvatarService;
     private final StudentAvatarRepository studentAvatarRepository;
