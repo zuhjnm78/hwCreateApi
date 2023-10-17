@@ -10,6 +10,8 @@ import ru.hogwarts.school.model.Student;
 import ru.hogwarts.school.repositories.FacultyRepository;
 
 import java.util.Collection;
+import java.util.Comparator;
+import java.util.List;
 import java.util.Optional;
 
 @Service
@@ -64,5 +66,12 @@ public class FacultyService {
             throw new IncorrectArgumentException("Color or name of the faculty must be specified");
         }
         return facultyRepository.findByNameIgnoreCaseOrColorIgnoreCase(name, color);
+    }
+    public Optional<String> getLongestFacultyName() {
+        List<Faculty> faculties = facultyRepository.findAll();
+
+        return faculties.stream()
+                .map(Faculty::getName)
+                .max(Comparator.comparingInt(String::length));
     }
 }

@@ -2,6 +2,7 @@ package ru.hogwarts.school.controller;
 
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.tags.Tag;
+import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 import ru.hogwarts.school.model.Faculty;
@@ -10,6 +11,8 @@ import ru.hogwarts.school.repositories.StudentRepository;
 import ru.hogwarts.school.service.StudentService;
 import java.util.Collection;
 import java.util.List;
+import java.util.OptionalDouble;
+import java.util.stream.Collectors;
 
 @RestController
 @RequestMapping("student")
@@ -98,6 +101,28 @@ public class StudentController {
     public ResponseEntity<List<Student>> getLastFiveStudents() {
         List<Student> lastFiveStudents = studentRepository.findTop5Students();
         return ResponseEntity.ok(lastFiveStudents);
+    }
+    @GetMapping("/names-starting-with-a")
+    public ResponseEntity<List<String>> getStudentNamesStartingWithA() {
+        List<Student> students = studentRepository.findAllByNameStartingWithIgnoreCase("A");
+
+        List<String> sortedNames = students.stream()
+                .map(Student::getName)
+                .map(String::toUpperCase)
+                .sorted()
+                .collect(Collectors.toList());
+
+        return new ResponseEntity<>(sortedNames, HttpStatus.OK);
+    }
+    @GetMapping("/average-age-stream")
+    public double getAverageAge() {
+        List<Student> students = studentRepository.findAll();
+
+        OptionalDouble averageAge = students.stream()
+                .mapToInt(Student::getAge)
+                .average();
+
+        return averageAge.orElse(0.0);
     }
 }
 
