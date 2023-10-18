@@ -8,7 +8,9 @@ import ru.hogwarts.school.model.Student;
 import ru.hogwarts.school.repositories.StudentRepository;
 import javax.transaction.Transactional;
 import java.util.Collection;
+import java.util.List;
 import java.util.Optional;
+import java.util.stream.Collectors;
 
 @Service
 @Transactional
@@ -79,5 +81,38 @@ public class StudentService {
     public Collection<Student> findByAgeBetween(Integer min, Integer max) {
         logger.info("Method findByAgeBetween called");
         return studentRepository.findByAgeBetween(min, max);
+    }
+    public List<String> getAllStudentNames() {
+        return studentRepository.findAll()
+                .stream()
+                .map(Student::getName)
+                .collect(Collectors.toList());
+    }
+    public void printStudentNames(){
+        List<String> studentNames = getAllStudentNames();
+        studentNames.subList(0, 2).forEach(System.out::println);
+
+        new Thread(() -> {
+            studentNames.subList(2, 4).forEach(System.out::println);
+        }).start();
+
+
+        new Thread(() -> {
+            studentNames.subList(4, 6).forEach(System.out::println);
+        }).start();
+    }
+
+    public synchronized void printStudentNamesSync() {
+        List<String> studentNames = getAllStudentNames();
+        studentNames.subList(0, 2).forEach(System.out::println);
+
+        new Thread(() -> {
+            studentNames.subList(2, 4).forEach(System.out::println);
+        }).start();
+
+
+        new Thread(() -> {
+            studentNames.subList(4, 6).forEach(System.out::println);
+        }).start();
     }
 }

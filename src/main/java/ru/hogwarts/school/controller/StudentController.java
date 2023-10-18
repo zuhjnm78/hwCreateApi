@@ -9,6 +9,7 @@ import ru.hogwarts.school.model.Faculty;
 import ru.hogwarts.school.model.Student;
 import ru.hogwarts.school.repositories.StudentRepository;
 import ru.hogwarts.school.service.StudentService;
+
 import java.util.Collection;
 import java.util.List;
 import java.util.OptionalDouble;
@@ -27,13 +28,13 @@ public class StudentController {
     }
 
     @PostMapping
-    @Operation (summary = "Создание студента")
+    @Operation(summary = "Создание студента")
     public Student create(@RequestBody Student studentRs) {
         return studentService.createStudent(studentRs);
     }
 
     @PutMapping
-    @Operation (summary = "Изменение студента")
+    @Operation(summary = "Изменение студента")
     public ResponseEntity<Student> updateStudent(@RequestBody Student student) {
         Student updatedStudent = studentService.updateStudent(student);
         if (updatedStudent == null) {
@@ -43,7 +44,7 @@ public class StudentController {
     }
 
     @DeleteMapping("{id}")
-    @Operation (summary = "Удаление студента")
+    @Operation(summary = "Удаление студента")
     public ResponseEntity deleteStudent(@PathVariable Long id) {
         Student deletedStudent = studentService.deleteStudent(id);
 
@@ -81,16 +82,18 @@ public class StudentController {
     }
 
     @GetMapping("faculty/{studentId}")
-    @Operation (summary = "Полученіе факультета студента")
+    @Operation(summary = "Полученіе факультета студента")
     public ResponseEntity<Faculty> getStudentFaculty(@PathVariable Long studentId) {
         Faculty faculty = studentService.getStudentById(studentId).getFaculty();
         return ResponseEntity.ok(faculty);
     }
+
     @GetMapping("/count")
     public ResponseEntity<Long> countAllStudents() {
         Long count = studentRepository.countAllStudents();
         return ResponseEntity.ok(count);
     }
+
     @GetMapping("/average-age")
     public ResponseEntity<Double> getAverageStudentAge() {
         Double averageAge = studentRepository.getAverageStudentAge();
@@ -102,6 +105,7 @@ public class StudentController {
         List<Student> lastFiveStudents = studentRepository.findTop5Students();
         return ResponseEntity.ok(lastFiveStudents);
     }
+
     @GetMapping("/names-starting-with-a")
     public ResponseEntity<List<String>> getStudentNamesStartingWithA() {
         List<Student> students = studentRepository.findAllByNameStartingWithIgnoreCase("A");
@@ -114,6 +118,7 @@ public class StudentController {
 
         return new ResponseEntity<>(sortedNames, HttpStatus.OK);
     }
+
     @GetMapping("/average-age-stream")
     public double getAverageAge() {
         List<Student> students = studentRepository.findAll();
@@ -123,6 +128,15 @@ public class StudentController {
                 .average();
 
         return averageAge.orElse(0.0);
+    }
+
+    @GetMapping("/print-names")
+    public void printStudentNames() {
+       studentService.printStudentNames();
+    }
+    @GetMapping("/print-names-synchron")
+    public void printStudentNamesSynchron() {
+        studentService.printStudentNamesSync();
     }
 }
 
