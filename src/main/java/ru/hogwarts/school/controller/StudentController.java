@@ -132,7 +132,7 @@ public class StudentController {
 
     @GetMapping("/print-names")
     public void printStudentNames() {
-       studentService.printStudentNames();
+       studentService.printStudentNamesAsync();
     }
     @GetMapping("/print-names-synchron")
     public void printStudentNamesSynchron() {

@@ -6,6 +6,7 @@ import org.springframework.stereotype.Service;
 import ru.hogwarts.school.model.Faculty;
 import ru.hogwarts.school.model.Student;
 import ru.hogwarts.school.repositories.StudentRepository;
+
 import javax.transaction.Transactional;
 import java.util.Collection;
 import java.util.List;
@@ -17,6 +18,7 @@ import java.util.stream.Collectors;
 public class StudentService {
     private static final Logger logger = LoggerFactory.getLogger(FacultyService.class);
     private final StudentRepository studentRepository;
+    public Object flag = new Object();
 
     public StudentService(StudentRepository studentRepository) {
         this.studentRepository = studentRepository;
@@ -82,13 +84,15 @@ public class StudentService {
         logger.info("Method findByAgeBetween called");
         return studentRepository.findByAgeBetween(min, max);
     }
+
     public List<String> getAllStudentNames() {
         return studentRepository.findAll()
                 .stream()
                 .map(Student::getName)
                 .collect(Collectors.toList());
     }
-    public void printStudentNames(){
+
+    public void printStudentNamesAsync() {
         List<String> studentNames = getAllStudentNames();
         studentNames.subList(0, 2).forEach(System.out::println);
 
@@ -102,17 +106,9 @@ public class StudentService {
         }).start();
     }
 
-    public synchronized void printStudentNamesSync() {
-        List<String> studentNames = getAllStudentNames();
-        studentNames.subList(0, 2).forEach(System.out::println);
-
-        new Thread(() -> {
-            studentNames.subList(2, 4).forEach(System.out::println);
-        }).start();
-
-
-        new Thread(() -> {
-            studentNames.subList(4, 6).forEach(System.out::println);
-        }).start();
+    public void printStudentNamesSync() {
+        synchronized (flag) {
+            printStudentNamesAsync();
+        }
     }
 }
