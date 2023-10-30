@@ -1,4 +1,5 @@
 package ru.hogwarts.school.controller;
+import java.util.stream.IntStream;
 
 import io.swagger.v3.oas.annotations.Operation;
 import org.springframework.http.HttpStatus;
@@ -10,6 +11,7 @@ import ru.hogwarts.school.model.Student;
 import ru.hogwarts.school.service.FacultyService;
 
 import java.util.Collection;
+import java.util.Optional;
 
 @RestController
 @RequestMapping("faculty")
@@ -76,5 +78,19 @@ public class FacultyController {
             throws IncorrectArgumentException {
         Collection<Faculty> filteredFaculties = facultyService.findByNameOrColor(name, color);
         return ResponseEntity.ok(filteredFaculties);
+    }
+    @GetMapping("/longest-name")
+    public String getLongestFacultyName() {
+        Optional<String> longestFacultyName = facultyService.getLongestFacultyName();
+        return longestFacultyName.orElse("No faculties found");
+    }
+    @GetMapping("/calculate-sum")
+    public int calculateSum() {
+        int sum = IntStream.iterate(1, a -> a + 1)
+                .parallel()
+                .limit(1_000_000)
+                .reduce(0, (a, b) -> a + b);
+
+        return sum;
     }
 }

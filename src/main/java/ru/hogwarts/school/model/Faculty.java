@@ -6,7 +6,7 @@ import com.fasterxml.jackson.annotation.JsonManagedReference;
 import javax.persistence.*;
 import java.util.List;
 import java.util.Objects;
-@Entity(name = "faculties")
+@Entity(name = "faculty")
 @JsonIgnoreProperties(value = {"student"})
 public class Faculty {
     @Id
